@@ -88,3 +88,6 @@ runs:
       id: get_preview_theme_id
       run: echo preview_theme_id=${{ env.PREVIEW_THEME_ID }} >> $GITHUB_OUTPUT
       shell: bash
+branding:
+  icon: 'shopping-bag'
+  color: 'green'
