@@ -1,0 +1,90 @@
+name: 'Deploy test & Copy live config'
+description: 'Upload unpublished theme & copy settings from the live theme.'
+inputs:
+  theme-name:
+    description: 'Theme name prefix to generate theme name, and select theme for cleanup'
+    required: false
+    default: 'Test Theme For Review -'
+  config-files:
+    description: 'List of files to copy from live theme. For example: --only templates/*.json --only sections/*.json --only config/settings_data.json'
+    required: false
+    default: '--only templates/*.json --only sections/*.json --only config/settings_data.json'
+  dest:
+    description: 'Set "new" to delete theme and upload all theme files (shopify share). Set "search_or_new" for incremental theme update (shopify push).'
+    required: false
+    default: 'search_or_new'
+    # new - force to create a new theme and upload all files (shopify share command)
+    # search_or_new - try to search the "theme-name" theme, create a new theme if not found
+outputs:
+  preview-theme-id:
+    description: "Theme id"
+    value: ${{ steps.get_preview_theme_id.outputs.preview_theme_id }}
+runs:
+  using: "composite"
+  steps:
+    #
+    # Install tools (node, ruby, Shopify CLI)
+    #
+    - uses: actions/setup-node@v4
+      with:
+        node-version: 20
+    - uses: ruby/setup-ruby@v1
+      with:
+        ruby-version: 3.1
+        bundler: "latest"
+    - name: Install Shopify CLI
+      run: npm install -g @shopify/cli @shopify/theme
+      shell: bash
+    #
+    # Get existing theme id
+    #
+    - name: Get oldest theme id that contains "${{ inputs.theme-name }}" in theme name
+      id: get_existing_theme_id
+      run: echo existing_theme_id=$(shopify theme list --name "${{ inputs.theme-name }}" | grep unpublished | awk -F "#" '{print $2}' | sort | head -1) >> $GITHUB_OUTPUT
+      shell: bash
+    #
+    # prepare theme source
+    # - checkout git repo
+    # - pull settings from live theme
+    #
+    - name: Checkout theme source from git repo
+      uses: actions/checkout@v4
+    - name: Get configs from live theme
+      run: shopify theme pull --live ${{ inputs.config-files }}
+      shell: bash
+    #
+    # Deploy theme for test
+    #
+    - name: Upload new theme
+      if: ${{ steps.get_existing_theme_id.outputs.existing_theme_id != '' && inputs.dest == 'new' }}
+      run: |
+        echo 'Theme found, dest=new. Delete and create new theme'
+        shopify theme delete --theme ${{ steps.get_existing_theme_id.outputs.existing_theme_id }} --force 
+        echo PREVIEW_THEME_ID=$(shopify theme share | awk -F "https://" '{print $2}' | awk -F "=" '{print $2}' ) >> $GITHUB_ENV
+      shell: bash
+    - name: Update existing theme, first time run
+      if: ${{ steps.get_existing_theme_id.outputs.existing_theme_id == '' && inputs.dest == 'search_or_new' }}
+      run: |
+        echo 'Theme not found, dest=search_or_new. Create new theme'
+        echo PREVIEW_THEME_ID=$(shopify theme share | awk -F "https://" '{print $2}' | awk -F "=" '{print $2}' ) >> $GITHUB_ENV
+      shell: bash
+    - name: Update existing theme
+      if: ${{ steps.get_existing_theme_id.outputs.existing_theme_id != '' && inputs.dest == 'search_or_new' }}
+      run: |
+        echo 'Theme found, dest=search_or_new. Update existing theme'
+        shopify theme push --theme ${{ steps.get_existing_theme_id.outputs.existing_theme_id }}
+        echo PREVIEW_THEME_ID=${{ steps.get_existing_theme_id.outputs.existing_theme_id }} >> $GITHUB_ENV
+      shell: bash
+    #
+    # Rename theme
+    #
+    - name: Rename theme
+      run: shopify theme rename --theme ${{ env.PREVIEW_THEME_ID }} --name "${{ inputs.theme-name }} `date +'%Y-%m-%d %H:%M:%S'`"
+      shell: bash
+    #
+    # Return theme id
+    #
+    - name: Output preview theme id
+      id: get_preview_theme_id
+      run: echo preview_theme_id=${{ env.PREVIEW_THEME_ID }} >> $GITHUB_OUTPUT
+      shell: bash
