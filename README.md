@@ -11,6 +11,7 @@ Steps:
 ## Environmet variables
 - **SHOPIFY_FLAG_STORE**: Required. Store URL, like your-store.myshopify.com
 - **SHOPIFY_CLI_THEME_TOKEN**: Required. Password generated from Theme Access app
+- **SHOPIFY_CLI_TTY**: Required. Pass this variable with a value of ```0``` to turn off interactive prompts. You might want to use this variable if your Shopify CLI pipeline step is timing out.
 
 ## Inputs
 
