@@ -3,24 +3,24 @@
 Deploy and Copy configs action helps to deploy unpublished theme and merge settings from live theme.
 
 Steps:
-- setup node, ruby and Shopify CLI
-- checkout theme source code from git repo
-- pull settings from live theme
+- setup node, ruby, and Shopify CLI
+- checkout theme source code from the git repo
+- pull settings from the live theme
 - push merged theme as a new unpublished theme copy
 
-## Environmet variables
+## Environment variables
 - **SHOPIFY_FLAG_STORE**: Required. Store URL, like your-store.myshopify.com
 - **SHOPIFY_CLI_THEME_TOKEN**: Required. Password generated from Theme Access app
 - **SHOPIFY_CLI_TTY**: Required. Pass this variable with a value of ```0``` to turn off interactive prompts. You might want to use this variable if your Shopify CLI pipeline step is timing out.
 
 ## Inputs
 
-- **theme-name**: Optional. Text prefix for theme (Default value: Test Theme For Review -)
+- **theme-name**: Optional. Text prefix for the theme (Default value: Test Theme For Review -)
 - **config-files**: Optional. List of files to pull from live theme (Default value: --only templates/*.json --only sections/*.json --only config/settings_data.json)
-- **dest**: Optional. Set update mode. Full or incremental. Set "new" to delete theme and upload all theme files (shopify share). Set "search_or_new" for incremental theme update (shopify push). (Defalut value: search_or_new)
+- **dest**: Optional. Set update mode. Full or incremental. Set "new" to delete the theme and upload all theme files (shopify share). Set "search_or_new" for incremental theme update (shopify push). (Defalut value: search_or_new)
 
 ## Outputs
-- **preview-theme-id** return the id of updated theme
+- **preview-theme-id** returns the id of the updated theme
 
 ## Usage example 
 
