@@ -9,21 +9,21 @@ Steps:
 - push merged theme as a new unpublished theme copy
 
 ## Environmet variables
-- **SHOPIFY_FLAG_STORE** (required) store URL, like your-store.myshopify.com
-- **SHOPIFY_CLI_THEME_TOKEN** (required) password generated from Theme Access app
+- **SHOPIFY_FLAG_STORE**: Required. Store URL, like your-store.myshopify.com
+- **SHOPIFY_CLI_THEME_TOKEN**: Required. Password generated from Theme Access app
 
 ## Inputs
 
-- **theme-name** (optional) text prefix for theme (Default value: Test Theme For Review -)
-- **config-files** (optional) list of files to pull from live theme (Default value: --only templates/*.json --only sections/*.json --only config/settings_data.json)
-- **dest** (optional) set update mode. Full or incremental. Set "new" to delete theme and upload all theme files (shopify share). Set "search_or_new" for incremental theme update (shopify push). (Defalut value: search_or_new)
+- **theme-name**: Optional. Text prefix for theme (Default value: Test Theme For Review -)
+- **config-files**: Optional. List of files to pull from live theme (Default value: --only templates/*.json --only sections/*.json --only config/settings_data.json)
+- **dest**: Optional. Set update mode. Full or incremental. Set "new" to delete theme and upload all theme files (shopify share). Set "search_or_new" for incremental theme update (shopify push). (Defalut value: search_or_new)
 
 ## Outputs
 - **preview-theme-id** return the id of updated theme
 
 ## Usage example 
 
-```
+```yaml
 name: Deploy Test
 on: 
   workflow_dispatch:
