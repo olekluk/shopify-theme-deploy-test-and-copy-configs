@@ -16,7 +16,7 @@ Steps:
 ## Inputs
 
 - **theme-name**: Optional. Text prefix for the theme (Default value: Test Theme For Review -)
-- **config-files**: Optional. List of files to pull from live theme (Default value: --only templates/*.json --only sections/*.json --only config/settings_data.json)
+- **config-files**: Optional. List of files to pull from live theme (Default value: --only templates/\*.json --only sections/\*.json --only config/settings_data.json)
 - **dest**: Optional. Set update mode. Full or incremental. Set "new" to delete the theme and upload all theme files (shopify share). Set "search_or_new" for incremental theme update (shopify push). (Defalut value: search_or_new)
 
 ## Outputs
