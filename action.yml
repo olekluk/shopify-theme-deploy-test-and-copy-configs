@@ -64,9 +64,14 @@ runs:
       shell: bash
     - name: Update existing theme, first time run
       if: ${{ steps.get_existing_theme_id.outputs.existing_theme_id == '' && inputs.dest == 'search_or_new' }}
-      run: |
-        echo 'Theme not found, dest=search_or_new. Create new theme'
-        shopify theme share --no-color | awk -F "https://" '{print $2}' | awk -F "=" '{print $2}'
+      id: get_new_theme_id
+      run:         
+        echo new_theme_id=$(shopify theme share --no-color | awk -F "https://" '{print $2}' | awk -F "=" '{print $2}') >> $GITHUB_OUTPUT
+      shell: bash
+    - name: Update existing theme, first time run, update theme id env var
+      if: ${{ steps.get_existing_theme_id.outputs.existing_theme_id == '' && inputs.dest == 'search_or_new' }}
+      run: 
+        echo PREVIEW_THEME_ID=${{ steps.get_new_theme_id.outputs.new_theme_id }} >> $GITHUB_ENV
       shell: bash
     - name: Update existing theme
       if: ${{ steps.get_existing_theme_id.outputs.existing_theme_id != '' && inputs.dest == 'search_or_new' }}
