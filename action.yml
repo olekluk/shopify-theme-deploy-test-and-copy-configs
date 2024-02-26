@@ -66,7 +66,7 @@ runs:
       if: ${{ steps.get_existing_theme_id.outputs.existing_theme_id == '' && inputs.dest == 'search_or_new' }}
       run: |
         echo 'Theme not found, dest=search_or_new. Create new theme'
-        echo $( shopify theme share --no-color | awk -F "https://" '{print $2}' | awk -F "=" '{print $2}' )
+        shopify theme share --no-color | awk -F "https://" '{print $2}' | awk -F "=" '{print $2}'
       shell: bash
     - name: Update existing theme
       if: ${{ steps.get_existing_theme_id.outputs.existing_theme_id != '' && inputs.dest == 'search_or_new' }}
