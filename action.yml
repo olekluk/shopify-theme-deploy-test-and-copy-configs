@@ -50,7 +50,7 @@ runs:
     - name: Checkout theme source from git repo
       uses: actions/checkout@v4
     - name: Get configs from live theme
-      run: shopify theme pull --live ${{ inputs.config-files }}
+      run: shopify theme pull --live ${{ inputs.config-files }} --verbose
       shell: bash
     #
     # Deploy theme for test
