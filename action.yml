@@ -8,7 +8,7 @@ inputs:
   config-files:
     description: 'List of files to copy from live theme. For example: --only templates/*.json --only sections/*.json --only config/settings_data.json'
     required: false
-    default: '--only "templates/.*\.json" --only "sections/.*\.json" --only "config/settings_data.json"'
+    default: '--only "templates/*.json" --only "sections/*.json" --only "config/settings_data.json"'
   dest:
     description: 'Set "new" to delete theme and upload all theme files (shopify share). Set "search_or_new" for incremental theme update (shopify push).'
     required: false
