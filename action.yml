@@ -15,6 +15,10 @@ inputs:
     default: 'search_or_new'
     # new - force to create a new theme and upload all files (shopify share command)
     # search_or_new - try to search the "theme-name" theme, create a new theme if not found
+  addliveconfig:
+    description: 'Set "true" to copy config files from the live theme'
+    required: false
+    default: 'true'
 outputs:
   preview-theme-id:
     description: "Theme id"
@@ -49,7 +53,11 @@ runs:
     #
     - name: Checkout theme source from git repo
       uses: actions/checkout@v4
+    #
+    # get configs from live theme
+    #
     - name: Get configs from live theme
+      if: ${{ inputs.addliveconfig == 'true' }}
       run: shopify theme pull --live ${{ inputs.config-files }}
       shell: bash
     #
