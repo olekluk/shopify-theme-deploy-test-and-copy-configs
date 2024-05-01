@@ -1,20 +1,44 @@
 name: 'Shopify Theme :: Deploy test & Copy live config'
 description: 'Upload unpublished theme & copy settings from the live theme.'
 inputs:
-  theme-name:
-    description: 'Theme name prefix to generate theme name, and select theme for cleanup'
+  #
+  # Shopify store details
+  #
+  store-name:
+    description: 'Shopify store name'
+    required: true
+    default: 'My Store'
+  store-url:
+    description: 'Shopify store URL'
+    required: true
+    default: 'my-store.myshopify.com'
+  store-password:
+    description: 'Secret to access your store. 1. Install "Theme access" app. 2. Create password. 3. Use it here. Shopify help page https://shopify.dev/docs/themes/tools/theme-access#install-the-theme-access-app'
+    required: true
+    default: 'Generate your password with the Theme access app'
+  #
+  # Theme name prefix
+  #
+  theme-name-prefix:
+    description: 'Theme name prefix. Max 30 symbols.'
     required: false
     default: 'Test Theme For Review -'
+  #
+  # List of files to copy
+  #
   config-files:
     description: 'List of files to copy from live theme. For example: --only templates/*.json --only sections/*.json --only config/settings_data.json'
     required: false
     default: '--only "templates/*.json" --only "sections/*.json" --only "config/settings_data.json"'
+  #
+  # Destination theme
+  #
   dest:
     description: 'Set "new" to delete theme and upload all theme files (shopify share). Set "search_or_new" for incremental theme update (shopify push).'
     required: false
     default: 'search_or_new'
     # new - force to create a new theme and upload all files (shopify share command)
-    # search_or_new - try to search the "theme-name" theme, create a new theme if not found
+    # search_or_new - try to search the "theme-name-prefix" theme, create a new theme if not found
 outputs:
   preview-theme-id:
     description: "Theme id"
@@ -38,9 +62,13 @@ runs:
     #
     # Get existing theme id
     #
-    - name: Get oldest theme id that contains "${{ inputs.theme-name }}" in theme name
+    - name: Get oldest theme id that contains "${{ inputs.theme-name-prefix }}" in theme name
       id: get_existing_theme_id
-      run: echo existing_theme_id=$(shopify theme list --name "${{ inputs.theme-name }}" | grep unpublished | awk -F "#" '{print $2}' | sort | head -1) >> $GITHUB_OUTPUT
+      env:
+        SHOPIFY_FLAG_STORE: '${{ inputs.store-url }}'
+        SHOPIFY_CLI_THEME_TOKEN: ${{ inputs.store-password }}
+        SHOPIFY_CLI_TTY: 0
+      run: echo existing_theme_id=$(shopify theme list --name "${{ inputs.theme-name-prefix }}" | grep unpublished | awk -F "#" '{print $2}' | sort | head -1) >> $GITHUB_OUTPUT
       shell: bash
     #
     # prepare theme source
@@ -52,7 +80,11 @@ runs:
     #
     # get configs from live theme
     #
-    - name: Get configs from live theme
+    - name: Get configs from live theme at "${{ inputs.store-name }}" store
+      env:
+        SHOPIFY_FLAG_STORE: '${{ inputs.store-url }}'
+        SHOPIFY_CLI_THEME_TOKEN: ${{ inputs.store-password }}
+        SHOPIFY_CLI_TTY: 0
       run: shopify theme pull --live ${{ inputs.config-files }}
       shell: bash
     #
@@ -60,6 +92,10 @@ runs:
     #
     - name: Upload new theme
       if: ${{ steps.get_existing_theme_id.outputs.existing_theme_id != '' && inputs.dest == 'new' }}
+      env:
+        SHOPIFY_FLAG_STORE: '${{ inputs.store-url }}'
+        SHOPIFY_CLI_THEME_TOKEN: ${{ inputs.store-password }}
+        SHOPIFY_CLI_TTY: 0
       run: |
         echo 'Theme found, dest=new. Delete and create new theme'
         shopify theme delete --theme ${{ steps.get_existing_theme_id.outputs.existing_theme_id }} --force 
@@ -68,6 +104,10 @@ runs:
     - name: Update existing theme, first time run
       if: ${{ steps.get_existing_theme_id.outputs.existing_theme_id == '' && inputs.dest == 'search_or_new' }}
       id: get_new_theme_id
+      env:
+        SHOPIFY_FLAG_STORE: '${{ inputs.store-url }}'
+        SHOPIFY_CLI_THEME_TOKEN: ${{ inputs.store-password }}
+        SHOPIFY_CLI_TTY: 0
       run:         
         echo new_theme_id=$(shopify theme share --no-color | awk -F "https://" '{print $2}' | awk -F "=" '{print $2}') >> $GITHUB_OUTPUT
       shell: bash
@@ -78,6 +118,10 @@ runs:
       shell: bash
     - name: Update existing theme
       if: ${{ steps.get_existing_theme_id.outputs.existing_theme_id != '' && inputs.dest == 'search_or_new' }}
+      env:
+        SHOPIFY_FLAG_STORE: '${{ inputs.store-url }}'
+        SHOPIFY_CLI_THEME_TOKEN: ${{ inputs.store-password }}
+        SHOPIFY_CLI_TTY: 0
       run: |
         echo 'Theme found, dest=search_or_new. Update existing theme'
         shopify theme push --theme ${{ steps.get_existing_theme_id.outputs.existing_theme_id }}
@@ -87,7 +131,11 @@ runs:
     # Rename theme
     #
     - name: Rename theme
-      run: shopify theme rename --theme ${{ env.PREVIEW_THEME_ID }} --name "${{ inputs.theme-name }} `date +'%Y-%m-%d %H:%M:%S'`"
+      env:
+        SHOPIFY_FLAG_STORE: '${{ inputs.store-url }}'
+        SHOPIFY_CLI_THEME_TOKEN: ${{ inputs.store-password }}
+        SHOPIFY_CLI_TTY: 0
+      run: shopify theme rename --theme ${{ env.PREVIEW_THEME_ID }} --name "${{ inputs.theme-name-prefix }} `date +'%Y-%m-%d %H:%M:%S'`"
       shell: bash
     #
     # Return theme id
