@@ -15,10 +15,6 @@ inputs:
     default: 'search_or_new'
     # new - force to create a new theme and upload all files (shopify share command)
     # search_or_new - try to search the "theme-name" theme, create a new theme if not found
-  addliveconfig:
-    description: 'Set "true" to copy config files from the live theme'
-    required: false
-    default: 'true'
 outputs:
   preview-theme-id:
     description: "Theme id"
@@ -37,7 +33,7 @@ runs:
         ruby-version: 3.1
         bundler: "latest"
     - name: Install Shopify CLI
-      run: npm install -g @shopify/cli @shopify/theme
+      run: npm install -g @shopify/cli@3.58.2 @shopify/theme@3.58.2
       shell: bash
     #
     # Get existing theme id
@@ -57,7 +53,6 @@ runs:
     # get configs from live theme
     #
     - name: Get configs from live theme
-      if: ${{ inputs.addliveconfig == 'true' }}
       run: shopify theme pull --live ${{ inputs.config-files }}
       shell: bash
     #
@@ -102,5 +97,5 @@ runs:
       run: echo preview_theme_id=${{ env.PREVIEW_THEME_ID }} >> $GITHUB_OUTPUT
       shell: bash
 branding:
-  icon: 'shopping-bag'
-  color: 'green'
+  icon: 'layers'
+  color: 'white'
