@@ -1,4 +1,4 @@
-name: 'Deploy test & Copy live config'
+name: 'Shopify Theme :: Deploy test & Copy live config'
 description: 'Upload unpublished theme & copy settings from the live theme.'
 inputs:
   theme-name:
