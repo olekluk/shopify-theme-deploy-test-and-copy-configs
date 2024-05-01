@@ -135,7 +135,7 @@ runs:
         SHOPIFY_FLAG_STORE: '${{ inputs.store-url }}'
         SHOPIFY_CLI_THEME_TOKEN: ${{ inputs.store-password }}
         SHOPIFY_CLI_TTY: 0
-      run: shopify theme rename --theme ${{ env.PREVIEW_THEME_ID }} --name "${{ inputs.theme-name-prefix }} `date +'%Y-%m-%d %H:%M:%S'`"
+      run: shopify theme rename --theme ${{ env.PREVIEW_THEME_ID }} --name "${{ inputs.theme-name-prefix }} `date +'%d-%b'`"
       shell: bash
     #
     # Return theme id
