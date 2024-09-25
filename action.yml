@@ -49,7 +49,7 @@ runs:
     #
     # Install tools (node, ruby, Shopify CLI)
     #
-    - uses: actions/setup-node@v4
+    - uses: actions/setup-node@v4.0.4
       with:
         node-version: 20
     - uses: ruby/setup-ruby@v1
